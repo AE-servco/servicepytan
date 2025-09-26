@@ -288,3 +288,23 @@ class DataService:
         "active": active
       }
     return Endpoint("settings", "business-units", conn=self.conn).get_all(options)
+
+  def get_job_types(self, active="Any"):
+    """Retrieve job types list.
+    
+    Fetches the list of job types configured in ServiceTitan.
+    
+    Args:
+        active: String indicating whether to show only active job types ("True", "False", or "Any")
+        
+    Returns:
+        list: List of job type records
+        
+    Examples:
+        >>> data_service = DataService(conn)
+        >>> job_types = data_service.get_job_types()
+    """
+    options = {
+        "active": active
+      }
+    return Endpoint("jpm", "job-types", conn=self.conn).get_all(options)
