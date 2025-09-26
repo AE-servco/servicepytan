@@ -308,3 +308,74 @@ class DataService:
         "active": active
       }
     return Endpoint("jpm", "job-types", conn=self.conn).get_all(options)
+  
+  def get_calls_between(self, start_date, end_date):
+    """Retrieve all calls between the start and end date.
+    
+    Fetches calls that were made or taken within the specified date range,
+    regardless of their current status.
+    
+    Args:
+        start_date: Start date for the query (string or datetime object)
+        end_date: End date for the query (string or datetime object)
+        
+    Returns:
+        list: List of all calls created in the date range
+        
+    Examples:
+        >>> data_service = DataService(conn)
+        >>> new_jobs = data_service.get_calls_between("2024-01-01", "2024-01-31")
+    """
+    options = {
+      "createdOnOrAfter": _convert_date_to_api_format(start_date, self.timezone),
+      "createdBefore": _convert_date_to_api_format(end_date, self.timezone)
+    }
+    return Endpoint("telecom", "calls", version="3", conn=self.conn).get_all(options)
+  
+  def get_bookings_between(self, start_date, end_date):
+    """Retrieve all bookings between the start and end date.
+    
+    Fetches bookings that were made or taken within the specified date range,
+    regardless of their current status.
+    
+    Args:
+        start_date: Start date for the query (string or datetime object)
+        end_date: End date for the query (string or datetime object)
+        
+    Returns:
+        list: List of all bookings created in the date range
+        
+    Examples:
+        >>> data_service = DataService(conn)
+        >>> new_jobs = data_service.get_bookings_between("2024-01-01", "2024-01-31")
+    """
+    options = {
+      "createdOnOrAfter": _convert_date_to_api_format(start_date, self.timezone),
+      "createdBefore": _convert_date_to_api_format(end_date, self.timezone)
+    }
+    return Endpoint("crm", "bookings", conn=self.conn).get_all(options)
+  
+  def get_payments_between(self, start_date, end_date):
+    """Retrieve all payments between the start and end date.
+    
+    Fetches payments that were made or taken within the specified date range,
+    regardless of their current status.
+    
+    Args:
+        start_date: Start date for the query (string or datetime object)
+        end_date: End date for the query (string or datetime object)
+        
+    Returns:
+        list: List of all payments created in the date range
+        
+    Examples:
+        >>> data_service = DataService(conn)
+        >>> new_jobs = data_service.get_payments_between("2024-01-01", "2024-01-31")
+    """
+    options = {
+      "paidOnAfter": _convert_date_to_api_format(start_date, self.timezone),
+      "paidOnBefore": _convert_date_to_api_format(end_date, self.timezone)
+    }
+    return Endpoint("accounting", "payments", conn=self.conn).get_all(options)
+
+  

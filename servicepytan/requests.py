@@ -18,10 +18,11 @@ class Endpoint:
       endpoint: A string indicating the endpoint you want to address.
       conn: a dictionary containing the credential config.
   """
-  def __init__(self, folder, endpoint, conn=None):
+  def __init__(self, folder, endpoint, version="2", conn=None):
     """Inits Endpoint with folder, endpoint and allows for getting necessary credentials from the config file."""
     self.folder = folder
     self.endpoint = endpoint
+    self.version = version
     self.conn = conn
 
   # Main Request Types

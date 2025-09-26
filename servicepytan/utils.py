@@ -67,7 +67,7 @@ def check_default_options(options):
   
   return options
 
-def endpoint_url(folder, endpoint, id="", modifier="", conn=None, tenant_id=""):
+def endpoint_url(folder, endpoint, version="2", id="", modifier="", conn=None, tenant_id=""):
   """Constructs API request URL based on key parameters.
 
   Builds the complete ServiceTitan API URL using the standard URL structure
@@ -98,7 +98,7 @@ def endpoint_url(folder, endpoint, id="", modifier="", conn=None, tenant_id=""):
   if tenant_id == "":
     tenant_id = get_tenant_id(conn)
 
-  url = f"{conn['api_root']}/{folder}/v2/tenant/{tenant_id}/{endpoint}"
+  url = f"{conn['api_root']}/{folder}/v{version}/tenant/{tenant_id}/{endpoint}"
   if id != "": url = f"{url}/{id}"
   if modifier != "": url = f"{url}/{modifier}"
   return url
