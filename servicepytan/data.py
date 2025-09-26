@@ -45,7 +45,7 @@ class DataService:
         "completedOnOrAfter": _convert_date_to_api_format(start_date, self.timezone),
         "completedBefore": _convert_date_to_api_format(end_date, self.timezone)
       }
-      data.extend(Endpoint("jpm", "jobs").get_all(options))
+      data.extend(Endpoint("jpm", "jobs", conn=self.conn).get_all(options))
     
     return data
 
@@ -70,7 +70,7 @@ class DataService:
       "createdOnOrAfter": _convert_date_to_api_format(start_date, self.timezone),
       "createdBefore": _convert_date_to_api_format(end_date, self.timezone)
     }
-    return Endpoint("jpm", "jobs").get_all(options)
+    return Endpoint("jpm", "jobs", conn=self.conn).get_all(options)
 
   def get_appointments_between(self, start_date, end_date, appointment_status=["Scheduled", "Dispatched", "Working","Done"]):
     """Retrieve all appointments that start between the start and end date.
@@ -100,7 +100,7 @@ class DataService:
         "startsOnOrAfter":_convert_date_to_api_format(start_date, self.timezone),
         "startsBefore":_convert_date_to_api_format(end_date, self.timezone)
       }
-      data.extend(Endpoint("jpm", "appointments").get_all(options))
+      data.extend(Endpoint("jpm", "appointments", conn=self.conn).get_all(options))
     
     return data
 
@@ -126,7 +126,7 @@ class DataService:
         "soldAfter":_convert_date_to_api_format(start_date, self.timezone),
         "soldBefore":_convert_date_to_api_format(end_date, self.timezone)
       }
-    return Endpoint("sales", "estimates").get_all(options)
+    return Endpoint("sales", "estimates", conn=self.conn).get_all(options)
 
   def get_total_sales_between(self, start_date, end_date):
     """Retrieves total sales dollar amount between start and end date.
@@ -176,7 +176,7 @@ class DataService:
         "createdOnOrAfter":_convert_date_to_api_format(start_date, self.timezone),
         "createdBefore":_convert_date_to_api_format(end_date, self.timezone)
       }
-    return Endpoint("inventory", "purchase-orders").get_all(options)
+    return Endpoint("inventory", "purchase-orders", conn=self.conn).get_all(options)
 
   def get_jobs_modified_between(self, start_date, end_date):
     """Retrieve all jobs modified between the start and end date.
@@ -199,7 +199,7 @@ class DataService:
       "modifiedOnOrAfter":_convert_date_to_api_format(start_date, self.timezone),
       "modifiedBefore":_convert_date_to_api_format(end_date, self.timezone)
     }
-    data = Endpoint("jpm", "jobs").get_all(options)
+    data = Endpoint("jpm", "jobs", conn=self.conn).get_all(options)
     
     return data
 
@@ -223,7 +223,7 @@ class DataService:
     options = {
         "active": active
       }
-    return Endpoint("settings", "employees").get_all(options)
+    return Endpoint("settings", "employees", conn=self.conn).get_all(options)
 
   def get_technicians(self, active="True"):
     """Retrieve technician list.
@@ -245,7 +245,7 @@ class DataService:
     options = {
         "active": active
       }
-    return Endpoint("settings", "technicians").get_all(options)
+    return Endpoint("settings", "technicians", conn=self.conn).get_all(options)
 
   def get_tag_types(self, active="True"):
     """Retrieve tag types list.
@@ -266,7 +266,7 @@ class DataService:
     options = {
         "active": active
       }
-    return Endpoint("settings", "tag-types").get_all(options)
+    return Endpoint("settings", "tag-types", conn=self.conn).get_all(options)
 
   def get_business_units(self, active="True"):
     """Retrieve business units list.
@@ -287,4 +287,4 @@ class DataService:
     options = {
         "active": active
       }
-    return Endpoint("settings", "business-units").get_all(options)
+    return Endpoint("settings", "business-units", conn=self.conn).get_all(options)
