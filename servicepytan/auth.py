@@ -4,6 +4,7 @@ import requests
 import json
 import os
 from dotenv import load_dotenv
+import time
 
 try:
     from enum import StrEnum
@@ -173,38 +174,53 @@ def servicepytan_connect(
     return auth_config_object
 
 def request_auth_token(auth_root_url: str, client_id, client_secret):
-  """Fetches Auth Token.
+    """Fetches Auth Token.
 
-  Retrieves authentication token for completing a request against the API
+    Retrieves authentication token for completing a request against the API
 
-  Args:
-      client_id: String, provided from the integration settings
-      client_secret: String, provided from the integration settings
+    Args:
+        client_id: String, provided from the integration settings
+        client_secret: String, provided from the integration settings
 
-  Returns:
-      Authentication token
+    Returns:
+        Authentication token
 
-  Raises:
-      TBD
-  """
+    Raises:
+        TBD
+    """
 
-  url: str = f"{auth_root_url}/connect/token"
+    url: str = f"{auth_root_url}/connect/token"
 
-  headers: dict = {
-    "Content-Type": "application/x-www-form-urlencoded",
-  }
-  data: dict = {
-    "grant_type": "client_credentials",
-    "client_id": client_id,
-    "client_secret": client_secret,
-  }
+    headers: dict = {
+        "Content-Type": "application/x-www-form-urlencoded",
+    }
+    data: dict = {
+        "grant_type": "client_credentials",
+        "client_id": client_id,
+        "client_secret": client_secret,
+    }
 
-  response = requests.post(url, headers=headers, data=data)
-  if response.status_code != requests.codes.ok:
-    logger.error(f"Error fetching auth token (url={url}, header={headers}, data={data}): {response.text}")
-    response.raise_for_status()
+    for attempt in range(5):
+        try:
+            response = requests.post(url, headers=headers, data=data)
+            response.raise_for_status()
+            return response.json()
+         
+        except requests.exceptions.HTTPError as e:
+            if response.status_code in (502, 503, 504):
+                wait = 2 ** attempt
+                print(f"Transient error {response.status_code}, retrying in {wait}s...")
+                time.sleep(wait)
+            else:
+                raise 
+        
+        except requests.exceptions.RequestException as e:
+            # handles network timeouts, connection errors, etc.
+            wait = 2 ** attempt
+            print(f"Network error: {e}, retrying in {wait}s...")
+            time.sleep(wait)
 
-  return response.json()
+    raise RuntimeError("Failed to get ServiceTitan token after multiple retries")
 
 def get_auth_token(conn):
   """Fetches Auth Token using the connection configuration.
