@@ -377,5 +377,28 @@ class DataService:
       "paidOnBefore": _convert_date_to_api_format(end_date, self.timezone)
     }
     return Endpoint("accounting", "payments", conn=self.conn).get_all(options)
+  
+  def get_invoices_between(self, start_date, end_date):
+    """Retrieve all invoices between the start and end date.
+    
+    Fetches invoices that were made within the specified date range,
+    regardless of their current status.
+    
+    Args:
+        start_date: Start date for the query (string or datetime object)
+        end_date: End date for the query (string or datetime object)
+        
+    Returns:
+        list: List of all invoices created in the date range
+        
+    Examples:
+        >>> data_service = DataService(conn)
+        >>> new_invoices = data_service.get_invoices_between("2024-01-01", "2024-01-31")
+    """
+    options = {
+      "invoicedOnOrAfter": _convert_date_to_api_format(start_date, self.timezone),
+      "invoicedOnBefore": _convert_date_to_api_format(end_date, self.timezone)
+    }
+    return Endpoint("accounting", "invoices", conn=self.conn).get_all(options)
 
   
