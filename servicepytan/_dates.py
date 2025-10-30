@@ -1,5 +1,6 @@
 """Dates Module: Converting Dates to UTC format"""
 
+from datetime import datetime
 from dateutil.parser import parse
 import pytz
 
@@ -114,3 +115,20 @@ def _convert_datetime_to_utc(datetime_object):
       >>> # Returns datetime in UTC (15:30)
   """
   return datetime_object.astimezone(pytz.UTC)
+
+def convert_ST_datetime_to_object(ST_datetime_str):
+  return datetime.fromisoformat(ST_datetime_str.replace('Z', '+00:00'))
+
+def convert_utc_datetime_to_local(datetime_object, local_tz):
+  """Convert datetime object to local timezone.
+  
+  Converts a timezone-aware datetime object to local timezone.=
+  
+  Args:
+      datetime_object: Timezone-aware datetime object
+      local_tz: timezone string ("Australia/Sydney")
+      
+  Returns:
+      datetime: Datetime object converted to local timezone
+  """
+  return datetime_object.astimezone(pytz.timezone(local_tz))

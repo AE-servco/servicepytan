@@ -402,25 +402,113 @@ class DataService:
     return Endpoint("accounting", "invoices", conn=self.conn).get_all(options)
   
   def get_invoices_by_id(self, ids):
-    """Retrieve all invoices between the start and end date.
-    
-    Fetches invoices that were made within the specified date range,
-    regardless of their current status.
+    """Retrieve all invoices with the specified ids.
     
     Args:
-        start_date: Start date for the query (string or datetime object)
-        end_date: End date for the query (string or datetime object)
+        ids: list of invoice ids to fetch.
         
     Returns:
-        list: List of all invoices created in the date range
+        list: List of all invoices with given ids
         
     Examples:
         >>> data_service = DataService(conn)
-        >>> new_invoices = data_service.get_invoices_between("2024-01-01", "2024-01-31")
+        >>> new_invoices = data_service.get_invoices_by_id([123456, 5634765894])
     """
     options = {
       "ids": ','.join(ids)
     }
     return Endpoint("accounting", "invoices", conn=self.conn).get_all(options)
+  
+  def get_estimates_by_job_id(self, job_id):
+    """Retrieve all estimates with the specified job id.
+    
+    Args:
+        job_id: the job id to query against.
+        
+    Returns:
+        list: List of all estimates on the given job
+        
+    Examples:
+        >>> data_service = DataService(conn)
+        >>> new_invoices = data_service.get_estimates_by_job_id(12334456)
+    """
+    options = {
+      "jobId": job_id
+    }
+    return Endpoint("sales", "estimates", conn=self.conn).get_all(options)
+  
+  def get_appointment_assignments_by_job_id(self, job_id):
+    """Retrieve all appointment assignments with the specified job id.
+    
+    Args:
+        job_id: the job id to query against.
+        
+    Returns:
+        list: List of all appointment assignments on the given job 
+        
+    Examples:
+        >>> data_service = DataService(conn)
+        >>> new_invoices = data_service.get_appointment_assignments_by_job_id(12334456)
+    """
+    options = {
+      "jobId": job_id
+    }
+    return Endpoint("dispatch", "appointment-assignments", conn=self.conn).get_all(options)
+  
+  def get_technician_by_id(self, tech_id):
+    """Retrieve technician with the specified id.
+    
+    Args:
+        tech_id: the id to query against.
+        
+    Returns:
+        dict: technician response dict
+        
+    Examples:
+        >>> data_service = DataService(conn)
+        >>> new_invoices = data_service.get_technician_by_id(12334456)
+    """
+    options = {
+      "ids": tech_id
+    }
+    return Endpoint("settings", "technicians", conn=self.conn).get_all(options)[0]
+  
+  def get_all_technicians(self):
+    """Retrieve all technician details.
+    
+    Args:
+        
+    Returns:
+        list: list of technicians response dicts
+        
+    Examples:
+        >>> data_service = DataService(conn)
+        >>> new_invoices = data_service.get_all_technicians()
+    """
+    options = {
+    }
+    return Endpoint("settings", "technicians", conn=self.conn).get_all(options)
+  
+  def get_payments_for_invoices(self, invoice_ids):
+    """Retrieve all payments applied to a list of invoices
+    
+    Fetches payments that were applied to the specified invoice ids,
+    regardless of their current status.
+    
+    Args:
+        invoice_ids: list of ids of invoices to get payments for
+        
+    Returns:
+        list: List of all payments applied to the given invoices
+        
+    Examples:
+        >>> data_service = DataService(conn)
+        >>> new_jobs = data_service.get_payments_for_invoices([12345, 32432])
+    """
+    options = {
+      "appliedToInvoiceIds": ','.join(invoice_ids)
+    }
+    return Endpoint("accounting", "payments", conn=self.conn).get_all(options)
+  
 
   
