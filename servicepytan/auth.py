@@ -173,7 +173,7 @@ def servicepytan_connect(
 
     return auth_config_object
 
-def request_auth_token(auth_root_url: str, client_id, client_secret):
+def request_auth_token(auth_root_url: str, client_id, client_secret, tenant_id=None):
     """Fetches Auth Token.
 
     Retrieves authentication token for completing a request against the API
@@ -199,6 +199,8 @@ def request_auth_token(auth_root_url: str, client_id, client_secret):
         "client_id": client_id,
         "client_secret": client_secret,
     }
+    if tenant_id:
+        data["tenant"] = tenant_id
 
     for attempt in range(5):
         try:
@@ -240,6 +242,9 @@ def get_auth_token(conn):
   # Read File
   client_id = conn['SERVICETITAN_CLIENT_ID']
   client_secret = conn['SERVICETITAN_CLIENT_SECRET']
+  if 'SERVICETITAN_TENANT_ID' in conn:
+    tenant_id = conn['SERVICETITAN_TENANT_ID']
+    return request_auth_token(conn["auth_root"], client_id, client_secret, tenant_id)["access_token"]
   return request_auth_token(conn["auth_root"], client_id, client_secret)["access_token"]
 
 def get_app_key(conn):
