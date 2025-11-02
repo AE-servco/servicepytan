@@ -510,5 +510,22 @@ class DataService:
     }
     return Endpoint("accounting", "payments", conn=self.conn).get_all(options)
   
+  def get_all_tag_types(self):
+    """Retrieve all tag type details.
+    
+    Args:
+        
+    Returns:
+        list: list of tag types response dicts
+        
+    Examples:
+        >>> data_service = DataService(conn)
+        >>> new_invoices = data_service.get_all_tag_types()
+    """
+    options = {
+    }
+    return Endpoint("settings", "tag-types", conn=self.conn).get_all(options)
+  
+  
 
   
