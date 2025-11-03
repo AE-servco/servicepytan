@@ -17,6 +17,47 @@ class DataService:
     self.conn = conn
     self.timezone = get_timezone_by_file(conn)
 
+  def get_api_data(self, folder, endpoint, options={}, version=2):
+    """Retrieve data from specified folder and endpoint
+    
+    Args:
+        folder: API folder e.g. 'jpm'
+        folder: API endpoint e.g. 'jobs'
+        options: request parameters e.g. {'createdOnOrAfter': '2025-10-20T20:00:00Z'}
+        version: API version (always 2 except for calls endpoint.)
+        
+    Returns:
+        list: list of response dicts
+        
+    Examples:
+        >>> data_service = DataService(conn)
+        >>> new_invoices = data_service.get_api_data('accounting', 'invoices', options={'createdOnOrAfter': '2025-10-20T20:00:00Z'})
+    """
+    return Endpoint(folder, endpoint, version=version, conn=self.conn).get_all(options)
+    
+  def get_api_data_between(self, folder, endpoint, start_date, end_date, date_filter_modifier="completed", options={}, version=2):
+    """Retrieve data from specified folder and endpoint between dates
+    
+    Args:
+        folder: API folder e.g. 'jpm'
+        folder: API endpoint e.g. 'jobs'
+        options: request parameters e.g. {'createdOnOrAfter': '2025-10-20T20:00:00Z'}
+        version: API version (always 2 except for calls endpoint.)
+        date_filter_modifier: the word that is used in the date filters for the request, usually one of "completed", "created", "started".
+        
+    Returns:
+        list: list of response dicts
+        
+    Examples:
+        >>> data_service = DataService(conn)
+        >>> new_invoices = data_service.get_api_data_between('accounting', 'invoices', date(2025,10,20), date(2025,10,21), "created")
+    """
+
+    options[f"{date_filter_modifier}OnOrAfter"] = _convert_date_to_api_format(start_date, self.timezone)
+    options[f"{date_filter_modifier}Before"] = _convert_date_to_api_format(end_date, self.timezone)
+
+    return self.get_api_data(self, folder, endpoint, options=options, version=version)
+
   def get_jobs_completed_between(self, start_date, end_date, job_status=["Completed","Scheduled","InProgress","Dispatched"]):
     """Retrieve all jobs completed between the start and end date.
     
@@ -42,8 +83,7 @@ class DataService:
     for status in job_status:
       options = {
         "jobStatus": status,
-        "completedOnOrAfter": _convert_date_to_api_format(start_date, self.timezone),
-        "completedBefore": _convert_date_to_api_format(end_date, self.timezone)
+
       }
       data.extend(Endpoint("jpm", "jobs", conn=self.conn).get_all(options))
     
