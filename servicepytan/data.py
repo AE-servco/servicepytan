@@ -17,12 +17,12 @@ class DataService:
     self.conn = conn
     self.timezone = get_timezone_by_file(conn)
 
-  def get_api_data(self, folder, endpoint, options={}, version=2):
+  def get_api_data(self, folder, endpoint, options=None, version=2):
     """Retrieve data from specified folder and endpoint
     
     Args:
         folder: API folder e.g. 'jpm'
-        folder: API endpoint e.g. 'jobs'
+        endpoint: API endpoint e.g. 'jobs'
         options: request parameters e.g. {'createdOnOrAfter': '2025-10-20T20:00:00Z'}
         version: API version (always 2 except for calls endpoint.)
         
@@ -33,14 +33,17 @@ class DataService:
         >>> data_service = DataService(conn)
         >>> new_invoices = data_service.get_api_data('accounting', 'invoices', options={'createdOnOrAfter': '2025-10-20T20:00:00Z'})
     """
+    if options is None:
+        options = {}
+        print(f"WARNING: You have not put any options in so this will call EVERYTHING! Endpoint: {folder}, {endpoint}")
     return Endpoint(folder, endpoint, version=version, conn=self.conn).get_all(options)
     
-  def get_api_data_between(self, folder, endpoint, start_date, end_date, date_filter_modifier="completed", options={}, version=2):
+  def get_api_data_between(self, folder, endpoint, start_date, end_date, date_filter_modifier="completed", options=None, version=2):
     """Retrieve data from specified folder and endpoint between dates
     
     Args:
         folder: API folder e.g. 'jpm'
-        folder: API endpoint e.g. 'jobs'
+        endpoint: API endpoint e.g. 'jobs'
         options: request parameters e.g. {'createdOnOrAfter': '2025-10-20T20:00:00Z'}
         version: API version (always 2 except for calls endpoint.)
         date_filter_modifier: the word that is used in the date filters for the request, usually one of "completed", "created", "started".
@@ -52,13 +55,14 @@ class DataService:
         >>> data_service = DataService(conn)
         >>> new_invoices = data_service.get_api_data_between('accounting', 'invoices', date(2025,10,20), date(2025,10,21), "created")
     """
+    if options is None:
+        options = {}
 
     options[f"{date_filter_modifier}OnOrAfter"] = _convert_date_to_api_format(start_date, self.timezone)
     options[f"{date_filter_modifier}Before"] = _convert_date_to_api_format(end_date, self.timezone)
+    return self.get_api_data(folder, endpoint, options=options, version=version)
 
-    return self.get_api_data(self, folder, endpoint, options=options, version=version)
-
-  def get_jobs_completed_between(self, start_date, end_date, job_status=["Completed","Scheduled","InProgress","Dispatched"]):
+  def get_jobs_completed_between(self, start_date, end_date, job_status=["Completed","Scheduled","InProgress","Dispatched"], app_guid=None):
     """Retrieve all jobs completed between the start and end date.
     
     Fetches jobs that were completed within the specified date range.
@@ -83,13 +87,16 @@ class DataService:
     for status in job_status:
       options = {
         "jobStatus": status,
-
+        "completedOnOrAfter": _convert_date_to_api_format(start_date, self.timezone),
+        "completedBefore": _convert_date_to_api_format(end_date, self.timezone)
       }
+      if app_guid:
+        options["externalDataApplicationGuid"] = app_guid
       data.extend(Endpoint("jpm", "jobs", conn=self.conn).get_all(options))
     
     return data
 
-  def get_jobs_created_between(self, start_date, end_date):
+  def get_jobs_created_between(self, start_date, end_date, app_guid=None):
     """Retrieve all jobs created between the start and end date.
     
     Fetches jobs that were originally created within the specified date range,
@@ -110,6 +117,8 @@ class DataService:
       "createdOnOrAfter": _convert_date_to_api_format(start_date, self.timezone),
       "createdBefore": _convert_date_to_api_format(end_date, self.timezone)
     }
+    if app_guid:
+      options["externalDataApplicationGuid"] = app_guid
     return Endpoint("jpm", "jobs", conn=self.conn).get_all(options)
 
   def get_appointments_between(self, start_date, end_date, appointment_status=["Scheduled", "Dispatched", "Working","Done"]):
@@ -218,7 +227,7 @@ class DataService:
       }
     return Endpoint("inventory", "purchase-orders", conn=self.conn).get_all(options)
 
-  def get_jobs_modified_between(self, start_date, end_date):
+  def get_jobs_modified_between(self, start_date, end_date, app_guid=None):
     """Retrieve all jobs modified between the start and end date.
     
     Fetches jobs that were updated or modified within the specified date range,
@@ -239,6 +248,8 @@ class DataService:
       "modifiedOnOrAfter":_convert_date_to_api_format(start_date, self.timezone),
       "modifiedBefore":_convert_date_to_api_format(end_date, self.timezone)
     }
+    if app_guid:
+      options["externalDataApplicationGuid"] = app_guid
     data = Endpoint("jpm", "jobs", conn=self.conn).get_all(options)
     
     return data
@@ -566,6 +577,38 @@ class DataService:
     }
     return Endpoint("settings", "tag-types", conn=self.conn).get_all(options)
   
+  def get_attachment(self, attach_id):
+    """Retrieve attachment.
+    
+    Args:
+        
+    Returns:
+        raw attachment data
+        
+    Examples:
+        >>> data_service = DataService(conn)
+        >>> attachment = data_service.get_attachment()
+    """
+    return Endpoint("forms", f"jobs/attachment", conn=self.conn).get_one_raw(attach_id).content
   
-
-  
+  def patch_job_external_data(self, job_id, data_payload, external_guid, patch_mode="Merge"):
+    """Retrieve external data from a job
+    
+    Args:
+        job_id: ID of job
+        external_guid: Application external GUID
+    Returns:
+        External data from job 
+        
+    Examples:
+        >>> data_service = DataService(conn)
+        >>> attachment = data_service.get_job_external_data(1451, 'fdsnfkjaj2n4jkrf-dgfmdgkfd')
+    """
+    payload = {
+      "externalData": {
+        "patchMode": patch_mode,
+        "applicationGuid": external_guid,
+        "externalData": data_payload
+      }
+    }
+    return Endpoint("jpm", f"jobs", conn=self.conn).update(job_id, json_payload=payload, request_type="PATCH")

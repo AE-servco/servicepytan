@@ -1,4 +1,4 @@
-from servicepytan.utils import request_json, check_default_options, endpoint_url, request_contents
+from servicepytan.utils import request_json, check_default_options, endpoint_url, request_contents, request_raw
 
 import logging
 
@@ -52,6 +52,32 @@ class Endpoint:
     url = endpoint_url(self.folder, self.endpoint, id=id, modifier=modifier, conn=self.conn)
     options = check_default_options(query)
     return request_json(url, options=options, payload="", conn=self.conn, request_type="GET")
+  
+  def get_one_raw(self, id, modifier=""):
+    """Retrieve one record using the record id.
+    
+    Fetches a single record from the API endpoint using its unique identifier.
+    Optionally supports modifiers to access sub-resources and query parameters
+    for additional filtering.
+    
+    Args:
+        id: The unique identifier of the record to retrieve
+        modifier: Optional sub-resource path (e.g., "notes" to get job notes)
+        query: Optional dictionary of query parameters for filtering
+        
+    Returns:
+        dict: JSON response containing the requested record data
+        
+    Raises:
+        requests.HTTPError: If the API request fails
+        
+    Examples:
+        >>> endpoint = Endpoint("jpm", "jobs", conn)
+        >>> job = endpoint.get_one(id="12345678")
+        >>> job_notes = endpoint.get_one_raw(id="12345678", modifier="notes")
+    """
+    url = endpoint_url(self.folder, self.endpoint, id=id, modifier=modifier, conn=self.conn)
+    return request_raw(url, conn=self.conn, request_type="GET")
 
   def get_many(self, query={}, id="", modifier=""):
     """Retrieve one page of results with query options to customize.
@@ -145,7 +171,7 @@ class Endpoint:
     url = endpoint_url(self.folder, self.endpoint, conn=self.conn)
     return request_json(url, options={}, json_payload=payload, conn=self.conn, request_type="POST")
 
-  def update(self, id, payload, modifier="", request_type="PUT"):
+  def update(self, id, payload={}, json_payload={}, modifier="", request_type="PUT"):
     """Update an existing record via PUT or PATCH request.
     
     Sends a PUT or PATCH request to update an existing resource. PUT is used
@@ -170,7 +196,13 @@ class Endpoint:
         >>> updated_job = endpoint.update("12345678", updates, request_type="PATCH")
     """
     url = endpoint_url(self.folder, self.endpoint, id=id, modifier=modifier, conn=self.conn)
-    return request_json(url, options={}, payload=payload, conn=self.conn, request_type=request_type)
+    # print(url)
+    return request_json(url, options={}, payload=payload, json_payload=json_payload, conn=self.conn, request_type=request_type)
+  
+#   def patch(self, id, payload):
+#     url = endpoint_url(self.folder, self.endpoint, id=id, conn=self.conn)
+
+
 
   def delete(self, id, modifier=""):
     """Delete a record via DELETE request.

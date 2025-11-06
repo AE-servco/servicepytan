@@ -43,6 +43,41 @@ def request_json(url, options={}, payload={}, conn=None, request_type="GET", jso
 
   return response.json()
 
+def request_raw(url, conn=None, request_type="GET"):
+  """Makes the request to the API and returns raw data.
+
+  Sends HTTP requests to the ServiceTitan API with proper authentication headers
+  and handles various request types including GET, POST, PUT, PATCH, and DELETE.
+
+  Args:
+      url: The complete URL for the API request
+      options: Dictionary of query parameters to add to the URL for filtering
+      payload: Dictionary containing form data for the request body
+      conn: Dictionary containing the credential configuration
+      request_type: HTTP method type ("GET", "POST", "PUT", "PATCH", "DEL")
+      json_payload: Dictionary containing JSON data for the request body
+
+  Returns:
+      dict: JSON response from the API
+
+  Raises:
+      requests.HTTPError: If the API request fails
+      
+  Examples:
+      >>> response = request_raw(
+      ...     "https://api.servicetitan.io/jpm/v2/tenant/123/jobs",
+      ...     options={"pageSize": 100},
+      ...     conn=connection_config
+      ... )
+  """
+  headers = get_auth_headers(conn)
+  response = requests.request(request_type, url, headers=headers)
+  if response.status_code != requests.codes.ok:
+    logger.error(f"Error fetching data (url={url}, heads={headers}): {response.text}")
+    response.raise_for_status()
+
+  return response
+
 def check_default_options(options):
   """Add sensible defaults to options when not defined.
   

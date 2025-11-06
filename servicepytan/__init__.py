@@ -24,4 +24,4 @@ import json
 from servicepytan.requests import Endpoint
 from servicepytan.reports import Report
 from servicepytan.data import DataService
-from servicepytan._dates import _convert_date_to_api_format, convert_utc_datetime_to_local, convert_ST_datetime_to_object
+from servicepytan._dates import _convert_date_to_api_format, convert_utc_datetime_to_local, convert_ST_datetime_to_object, convert_ST_datetime_to_local_obj, convert_ST_datetime_to_local_str

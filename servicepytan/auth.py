@@ -247,6 +247,31 @@ def get_auth_token(conn):
     return request_auth_token(conn["auth_root"], client_id, client_secret, tenant_id)["access_token"]
   return request_auth_token(conn["auth_root"], client_id, client_secret)["access_token"]
 
+# def get_auth_token_and_expiry(conn):
+#   """Fetches Auth Token using the connection configuration.
+
+#   Retrieves the CLIENT_ID and CLIENT_SECRET entries from the connection object
+#   and requests an authentication token from the ServiceTitan API.
+
+#   Args:
+#       conn: Dictionary containing the credential configuration
+
+#   Returns:
+#       str: Authentication token
+
+#   Raises:
+#       requests.HTTPError: If the authentication request fails
+#   """
+#   # Read File
+#   client_id = conn['SERVICETITAN_CLIENT_ID']
+#   client_secret = conn['SERVICETITAN_CLIENT_SECRET']
+#   if 'SERVICETITAN_TENANT_ID' in conn:
+#     tenant_id = conn['SERVICETITAN_TENANT_ID']
+#     resp = request_auth_token(conn["auth_root"], client_id, client_secret, tenant_id)
+#     return resp["access_token"], resp["expires_in"]
+#   resp = request_auth_token(conn["auth_root"], client_id, client_secret)
+#   return resp["access_token"], resp["expires_in"]
+
 def get_app_key(conn):
   """Fetches App Key from the connection configuration.
 

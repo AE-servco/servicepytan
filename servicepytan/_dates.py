@@ -132,3 +132,9 @@ def convert_utc_datetime_to_local(datetime_object, local_tz):
       datetime: Datetime object converted to local timezone
   """
   return datetime_object.astimezone(pytz.timezone(local_tz))
+
+def convert_ST_datetime_to_local_obj(ST_datetime_str, local_tz):
+  return convert_utc_datetime_to_local(convert_ST_datetime_to_object(ST_datetime_str), local_tz)
+
+def convert_ST_datetime_to_local_str(ST_datetime_str, local_tz, format_str='%Y-%m-%dT%H:%M:%S'):
+  return convert_ST_datetime_to_local_obj(ST_datetime_str, local_tz).strftime(format_str)
