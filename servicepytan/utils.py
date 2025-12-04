@@ -36,7 +36,7 @@ def request_json(url, options={}, payload={}, conn=None, request_type="GET", jso
       ... )
   """
   headers = get_auth_headers(conn)
-  response = requests.request(request_type, url, data=payload, headers=headers, params=options, json=json_payload)
+  response = requests.request(request_type, url, data=payload, headers=headers, params=options, json=json_payload, timeout=(5, 30))
   if response.status_code != requests.codes.ok:
     logger.error(f"Error fetching data (url={url}, heads={headers}, data={payload}, json={json_payload}): {response.text}")
     response.raise_for_status()
@@ -71,7 +71,7 @@ def request_raw(url, conn=None, request_type="GET"):
       ... )
   """
   headers = get_auth_headers(conn)
-  response = requests.request(request_type, url, headers=headers)
+  response = requests.request(request_type, url, headers=headers, timeout=(5, 30))
   if response.status_code != requests.codes.ok:
     logger.error(f"Error fetching data (url={url}, heads={headers}): {response.text}")
     response.raise_for_status()
